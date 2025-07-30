@@ -1,0 +1,150 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.w {
+  width: 1200px;
+  margin: auto;
+}
+
+body {
+  background-color: #f3f5f7;
+}
+
+li {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+}
+.header {
+  height: 42px;
+  margin: 30px auto;
+}
+
+.logo {
+  float: left;
+  width: 198px;
+  height: 42px;
+}
+
+.nav {
+  /* 导航栏不设置宽度，将来可以继续添加其余文字 */
+  float: left;
+  margin-left: 60px;
+}
+
+.nav ul li {
+  /* li标签是块级元素，需要设置浮动才能将各个导航项放在一行显示 */
+  float: left;
+  margin: 0 15px;
+}
+
+.nav ul li a {
+  /* a标签本身是行内元素，需要设置成块级元素才能够设置盒子高度或宽度 */
+  display: block;
+  /* 导航栏中的选项字数不一定，所以只需设置高度，不需要设置宽度，用文字撑开盒子 */
+  height: 42px;
+  padding: 0 10px;
+  /* 设置文字行高和导航栏盒子header等高，可以到达文字居中的效果 */
+  line-height: 42px;
+  font-size: 18px;
+  color: #050505;
+}
+
+.nav ul li a:hover {
+  /* 当鼠标经过导航文字，底部会有蓝色线显示 */
+  border-bottom: 2px solid #00a4ff;
+  color: #00a4ff;
+}
+
+.search {
+  float: left;
+  width: 411px;;
+  height: 42px;
+  margin-left: 70px;
+}
+
+.search input {
+  float: left;
+  width: 345px;
+  height: 40px;
+  border: 1px solid #00a4ff;
+  border-right: 0;
+  color: #bfbfbf;
+  font-size: 14px;
+  padding-left: 15px;
+}
+
+.search button {
+  /* 因为input框和button框都是行内块元素，所以放在同一行中间会有空隙，在默认的情况下，button框就会下移，所以需要给成浮动，就会消除间隙 */
+  float: left;
+  width: 50px;
+  height: 42px;
+  /* 按钮button默认有个边框，需要手动去掉 */
+  border: 0;
+  background: url(images/btn.png);
+}
+
+.user {
+  float: right;
+  line-height: 42px;
+  font-size: 14px;
+  color: #666;
+}
+
+.banner {
+  height: 421px;
+  background-color: #1c036c;
+}
+
+.banner .w {
+  height: 421px;
+  background: url(images/banner2_20190819_210028.png) no-repeat top center;
+}
+
+.subnav {
+  float: left;
+  width: 190px;
+  height: 421px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.subnav ul li {
+  height: 45px;
+  line-height: 45px;
+  padding: 0 20px;
+}
+
+.subnav ul li a {
+  font-size: 14px;
+  color: #fff;
+}
+
+.subnav ul li a:hover {
+  color: #00a4ff;
+}
+
+.subnav ul li a span {
+  float: right;
+}
+
+.course {
+  float: right;
+  width: 230px;
+  height: 300px;
+  background-color: pink;
+  /* 浮动的盒子不会有外边距合并的问题 */
+  margin-top: 50px;
+}
+
+.course h2 {
+  height: 48px;
+  background-color: #9bceea; 
+  text-align: center;
+  line-height: 48px;
+  font-size: 18px;
+  color: #fff;
+}
