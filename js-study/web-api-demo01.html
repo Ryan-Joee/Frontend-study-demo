@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>web-api</title>
+</head>
+<body>
+  <input type="text" value="请输入：">
+  <button disabled></button>
+  <input type="checkbox" class="agree">
+  <script>
+    // let arr = ['green', 'red', 'black']
+    // arr.splice(1, 1, 'pink', 'blue')
+    // console.log(arr);
+    let input = document.querySelector('input')
+    // console.log(input.value);
+    input.value = '小米手机'
+    input.type = 'password'
+
+    let btn = document.querySelector('button')
+    btn.disabled = false
+    
+    let checkbox = document.querySelector('.agree')
+    checkbox.checked = true
+
+    // 间歇函数
+    function repeat() {
+      console.log('这是间歇函数');
+    }
+    // setInterval(repeat, 1000)
+  </script>
+</body>
+</html>
