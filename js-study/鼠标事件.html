@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>鼠标事件</title>
+</head>
+<body>
+  <h3>鼠标事件</h3>
+  <div class="box">盒子</div>
+  <script>
+    const box = document.querySelector('.box')
+    // box.addEventListener('mouseenter', () => {
+    // 在浏览器中，如果是在全局（比如直接在 <script>里），​​箭头函数的 this默认指向的是 window对象（严格模式下是 undefined）​​，而 window并没有 innerText或 style属性，所以代码不会生效，也不会报错（取决于环境）
+    box.addEventListener('mouseenter', function() {
+      // const text = document.querySelector('div')
+      // text.innerText = '鼠标移入了...'
+      box.innerText = '鼠标移入了...'
+      box.style.cursor = 'move'
+    })
+    box.addEventListener('mouseleave', function() {
+      box.innerText = '鼠标移出了...'
+    })
+  </script>
+  
+</body>
+</html>
