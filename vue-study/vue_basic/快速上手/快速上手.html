@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>快速上手</title>
+  </head>
+  <body>
+    <div id="app">
+      <button @click="count++">Count is: {{ count }}</button>
+    </div>
+
+    <script>
+      import { createApp, ref } from "vue";
+
+      createApp({
+        setup() {
+          return {
+            count: ref(0),
+          };
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>
