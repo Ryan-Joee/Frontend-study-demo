@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>Vue3 事件处理基础演示</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    .container { padding: 20px; }
+    .box { padding: 10px; margin: 10px 0; border: 1px solid #ccc; }
+    .inner { padding: 10px; background: #f0f0f0; }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <h2>事件处理演示</h2>
+
+    <!-- 1. 基本事件绑定 -->
+    <div class="box">
+      <h3>基本事件：</h3>
+      <button @click="sayHello">点击问候</button>
+      <button @click="count++">计数：{{ count }}</button>
+    </div>
+
+    <!-- 2. 方法传参 -->
+    <div class="box">
+      <h3>方法传参：</h3>
+      <button @click="add(1)">+1</button>
+      <button @click="add(5)">+5</button>
+      <button @click="add(-1)">-1</button>
+      <p>当前值：{{ value }}</p>
+    </div>
+
+    <!-- 3. 访问事件对象 -->
+    <div class="box">
+      <h3>事件对象：</h3>
+      <button @click="showEvent">查看事件信息</button>
+      <input @input="onInput" placeholder="输入文字试试">
+      <p>输入内容：{{ inputText }}</p>
+    </div>
+
+    <!-- 4. 事件修饰符 -->
+    <div class="box">
+      <h3>事件修饰符：</h3>
+      <div @click="outerClick" style="padding: 20px; background: lightblue;">
+        外层区域（点击我）
+        <div @click.stop="innerClick" class="inner">
+          内层区域（点击我不会冒泡）
+        </div>
+      </div>
+      <form @submit.prevent="handleSubmit">
+        <input v-model="formData" placeholder="按回车提交">
+        <button type="submit">提交</button>
+      </form>
+    </div>
+
+    <!-- 5. 按键修饰符 -->
+    <div class="box">
+      <h3>按键修饰符：</h3>
+      <input @keyup.enter="onEnter" placeholder="按回车键">
+      <input @keyup.esc="onEscape" placeholder="按 ESC 键">
+      <p>{{ keyMessage }}</p>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue
+
+    createApp({
+      data() {
+        return {
+          count: 0,
+          value: 0,
+          inputText: '',
+          formData: '',
+          keyMessage: '等待按键...'
+        }
+      },
+      methods: {
+        // 基本方法
+        sayHello() {
+          alert('你好！')
+        },
+
+        // 带参数的方法
+        add(num) {
+          this.value += num
+        },
+
+        // 访问事件对象
+        showEvent(event) {
+          console.log('事件对象：', event)
+          console.log('点击的元素：', event.target)
+          alert(`点击了：${event.target.tagName}`)
+        },
+
+        // 输入事件
+        onInput(event) {
+          this.inputText = event.target.value
+        },
+
+        // 事件修饰符演示
+        outerClick() {
+          console.log('外层被点击')
+        },
+
+        innerClick() {
+          console.log('内层被点击（阻止冒泡）')
+        },
+
+        // 表单提交
+        handleSubmit() {
+          alert(`提交内容：${this.formData}`)
+          this.formData = ''
+        },
+
+        // 按键事件
+        onEnter(event) {
+          this.keyMessage = `你按了回车键，输入内容：${event.target.value}`
+          event.target.value = ''
+        },
+
+        onEscape() {
+          this.keyMessage = '你按了 ESC 键'
+        }
+      }
+    }).mount('#app')
+  </script>
+</body>
+</html>
