@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>创建第一个Vue应用</title>
+    <!-- 引入Vue3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  </head>
+  <body>
+    <!-- 创建一个容器 -->
+    <div id="app">
+      <h1>{{ message }}</h1>
+      <p>Count is: {{ count }}</p>
+      <!-- 使用@click绑定点击事件 -->
+      <button @click="increment">增加计数</button>
+    </div>
+    <script>
+      //  从Vue中解构createApp函数
+      const { createApp } = Vue;
+      // 创建Vue应用实例
+      const app = createApp({
+        // data函数返回应用的数据
+        data() {
+          return {
+            message: "你好",
+            count: 0,
+          };
+        },
+        methods: {
+          increment() {
+            this.count++;
+          },
+        },
+      });
+      // 将app实例挂载到容器上
+      app.mount("#app");
+    </script>
+  </body>
+</html>
