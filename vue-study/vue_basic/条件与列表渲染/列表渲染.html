@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>列表渲染</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+  <div id="app">
+    <h2>列表渲染</h2>
+    <!-- 1. 基本数组遍历 -->
+    <h3>水果列表：</h3>
+    <ul>
+      <li v-for="fruit in fruits" :key="fruit">{{ fruit }}</li>
+    </ul>
+    <!-- 2. 带索引的数组遍历 -->
+    <h3>带序号的水果列表：</h3>
+    <ul>
+      <li v-for="(fruit, index) in fruits" :key="fruit">{{index + 1}}. {{fruit}}</li>
+    </ul>
+    <!-- 3. 对象数组遍历 -->
+    <h3>学生信息：</h3>
+    <ul>
+      <li v-for="student in students" :key="student.id">姓名：{{student.name}} 年龄： {{student.age}}</li>
+    </ul>
+    <!-- 4. 对象属性遍历 -->
+    <h3>用户信息：</h3>
+    <ul>
+      <li v-for="(value, key) in user" :key="key">{{ key }}: {{ value }}</li>
+    </ul>
+    <!-- 5. 动态操作列表 -->
+    <h3>动态操作：</h3>
+    <input v-model="newFruit" placeholder="输入新水果">
+    <button @click="addFruit">增加新水果</button>
+    <button @click="removeFruit">删除最后一个水果</button>
+  </div>
+  <script>
+    // 这个{ createApp } 使用的是解构
+    const { createApp } = Vue
+    createApp({
+      data() {
+        return {
+          // 简单数组
+          fruits: ['苹果', '香蕉', '橙子'],
+          // 对象数组
+          students: [
+            {id: 1, name: '小明', age: 18},
+            {id: 2, name: '小红', age: 19},
+            {id: 3, name: '小兰', age: 20}
+          ],
+          // 普通对象
+          user: {
+            name: '张三',
+            age: 34,
+            city: '上海',
+            job: '程序员'
+          },
+          newFruit: ''
+        }
+      },
+      methods: {
+        addFruit() {
+          if(this.newFruit.trim()) {
+            // 这里需要加上this，否则fruits.push()，JS会从当前函数作用域中寻找fruits
+            // 我们需要的是当前Vue实例中data中的fruits，
+            // 而定义的 fruits 和 newFruit 是返回的 data() 对象中的属性，Vue 会自动把它们挂载到组件实例上 —— 也就是 this。
+            this.fruits.push(this.newFruit)
+            this.newFruit = ''
+          }
+        },
+        removeFruit() {
+          if (this.fruits.length > 0) {
+            this.fruits.pop()
+          }
+        }
+      }
+    }).mount('#app')
+  </script>
+</body>
+</html>

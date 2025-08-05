@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>Vue3 条件渲染基础演示</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+  <div id="app">
+    <h2>条件渲染演示</h2>
+
+    <!-- 1. v-if：条件为真时才渲染 -->
+    <p v-if="isVisible">这段文字只有在 isVisible 为 true 时才显示</p>
+
+    <!-- 2. v-else：与 v-if 配对使用 -->
+    <p v-if="userType === 'admin'">管理员界面</p>
+    <p v-else>普通用户界面</p>
+
+    <!-- 3. v-else-if：多条件判断 -->
+    <p v-if="score >= 90">优秀</p>
+    <p v-else-if="score >= 70">良好</p>
+    <p v-else-if="score >= 60">及格</p>
+    <p v-else>不及格</p>
+
+    <!-- 4. v-show：通过 CSS display 控制显示隐藏 -->
+    <p v-show="showMessage">这段文字通过 v-show 控制显示</p>
+
+    <!-- 控制按钮 -->
+    <button @click="toggleVisible">切换 isVisible</button>
+    <button @click="toggleUserType">切换用户类型</button>
+    <button @click="changeScore">改变分数</button>
+    <button @click="toggleMessage">切换消息显示</button>
+  </div>
+
+  <script>
+    const { createApp } = Vue
+
+    createApp({
+      data() {
+        return {
+          isVisible: true,
+          userType: 'admin',
+          score: 85,
+          showMessage: true
+        }
+      },
+      methods: {
+        toggleVisible() {
+          this.isVisible = !this.isVisible
+        },
+        toggleUserType() {
+          this.userType = this.userType === 'admin' ? 'user' : 'admin'
+        },
+        changeScore() {
+          // 循环改变分数：85 → 75 → 65 → 50 → 85
+          if (this.score === 85) this.score = 75
+          else if (this.score === 75) this.score = 65
+          else if (this.score === 65) this.score = 50
+          else this.score = 85
+        },
+        toggleMessage() {
+          this.showMessage = !this.showMessage
+        }
+      }
+    }).mount('#app')
+  </script>
+</body>
+</html>
