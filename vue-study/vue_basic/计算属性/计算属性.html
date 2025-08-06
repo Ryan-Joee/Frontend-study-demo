@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>计算属性</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    .container {
+      padding: 20px;
+    }
+    .box {
+      padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px;
+    }
+    .highlight { background-color: #f0f8ff; }
+    .performance { background-color: #fff8dc; }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <h2>计算属性演示</h2>
+    <!-- 1. 基本计算属性 -->
+    <div class="box">
+      <h3>基本计算属性</h3>
+      <p>名：{{ firstName }}</p>
+      <p>姓：{{ lastName }}</p>
+      <p>名：<input type="text" v-model="firstName"></p>
+      <p>姓：<input type="text" v-model="lastName"></p>
+      <p>全名：（计算属性）{{ fullName }}</p>
+      <p>全名：（方法调用）{{ getFullName() }}</p>
+    </div>
+    <!-- 2. 购物车计算 -->
+     <div class="box">
+      <h3>购物车计算</h3>
+      <div v-for="(item, index) in cartItems" :key="index">
+        <span>{{ item.name }}</span> - 
+        单价：￥{{ item.price }} - 
+        <!-- .number 是 Vue 的一个修饰符，表示：“把输入的值自动转换为 number 类型。” 
+         如果不加，输入的内容如：20，类型是字符串，而不是number类型-->
+        数量：<input type="number" v-model.number="item.quantity" min="0">
+        小计：{{ item.price * item.quantity }}
+      </div>
+      <hr>
+      <p><strong>总金额：￥{{ totalPrice }}</strong></p>
+      <p><strong>商品总数：{{ totalQuantity }}</strong></p>
+     </div>
+     <!-- 3. 列表过滤 -->
+      <div class="box">
+        <h3>学生列表过滤：</h3>
+        <p>最低分数：<input type="number" v-model.number="minScore"></p>
+        <p>搜索名字：<input type="text" v-model="searchName"></p>
+        <h4>所有学生：</h4>
+        <ul>
+          <li v-for="student in students" :key="student.id">
+            {{ student.name }} - {{ student.score }}
+          </li>
+        </ul>
+        <h4>筛选结果：</h4>
+        <ul>
+          <li v-for="student in filterStudents" :key="student.id">
+            {{ student.name }} - {{ student.score }}分
+          </li>
+        </ul>
+      </div>
+       <!-- 5. 可写计算属性 -->
+      <div class="box highlight">
+        <h3>可写计算属性：</h3>
+        <p>完整姓名：<input v-model="writableFullName"></p>
+        <p>名：{{ firstName }}</p>
+        <p>姓：{{ lastName }}</p>
+        <small>提示：在输入框中输入"张 三"格式的姓名</small>
+      </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+    createApp({
+      data() {
+        return {
+          firstName: '三',
+          lastName: '张',
+          // 购物车数据
+          cartItems: [
+            { name: '苹果', price: 5, quantity: 3 },
+            { name: '香蕉', price: 3, quantity: 5 },
+            { name: '橙子', price: 4, quantity: 2 }
+          ],
+          // 学生数据
+          students: [
+            { id: 1, name: '小明', score: 85 },
+            { id: 2, name: '小红', score: 92 },
+            { id: 3, name: '小刚', score: 78 },
+            { id: 4, name: '小丽', score: 96 },
+            { id: 5, name: '小华', score: 65 }
+          ],
+          minScore: 80,
+          searchName: '',
+        }
+      },
+      computed: {
+        // 1. 基本计算属性
+        fullName() {
+          return this.lastName + this.firstName
+        },
+        // 2. 购物车计算
+        totalPrice() {
+          // Array.prototype.reduce() 是 JavaScript 的数组方法，用于将一个数组归约为一个值（这里是总价格）。
+          // 对于 cartItems 中的每一项 item，我们取出 item.price * item.quantity，然后累加到 total 上。
+          // 0：是指将total初始化为0
+          return this.cartItems.reduce((total, item) => {
+            return total + (item.price * item.quantity)
+          }, 0)
+        },
+        totalQuantity() {
+          return this.cartItems.reduce((total, item) => {
+            return total + item.quantity
+          }, 0)
+        },
+        // 3. 列表过滤
+        filterStudents() {
+          // filter() 方法会返回一个新数组，这个数组包含了所有使提供的回调函数返回 true 的元素。
+          return this.students.filter(student => {
+            const scoreMatch = student.score >= this.minScore
+            const nameMatch = student.name.includes(this.searchName)
+            return scoreMatch && nameMatch
+          })
+        },
+        // 5. 可写计算属性
+        writableFullName: {
+          get() {
+            return this.lastName + ' ' + this.firstName
+          },
+          set(value) {
+            const names = value.split(' ')
+            if (names.length >= 2) {
+              this.lastName = names[0]
+              this.firstName = names[1]
+            }
+          }
+        }
+      },
+      methods: {
+        // 对比：方法调用
+        getFullName() {
+          return this.lastName + this.firstName
+        }
+      }
+    }).mount('#app')
+  </script>
+
+  
+</body>
+</html>
