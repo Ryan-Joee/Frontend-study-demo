@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>响应式基础</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    .container {
+      padding: 20px;
+    }
+    .box {
+      padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px;
+    }
+    .highlight { background-color: #f0f8ff; }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <h2>响应式基础</h2>
+    <!-- 基本响应式数据 -->
+    <div class="box">
+      <h3>基本响应式数据</h3>
+      <p>消息：{{ message }}</p>
+      <p>计数：{{ count }}</p>
+      <button @click="updateMessage">点我更新信息</button>
+      <button @click="increment">增加计数</button>
+    </div>
+    <!-- 2. 对象响应式 -->
+     <div class="box">
+      <h3>对象响应式</h3>
+      <p>姓名：{{ user.name }}</p>
+      <p>年龄：{{ user.age }}</p>
+      <p>城市：{{ user.city }}</p>
+      <p v-if="user.email">{{ user.email }}</p>
+      <button @click="updateUser">更新用户信息</button>
+      <button @click="addProperty">添加新属性</button>
+     </div>
+     <!-- 3. 数组响应式 -->
+     <div class="box">
+      <h3>数组响应式</h3>
+      <ul>
+        <li v-for="(value, index) in todos" :key="index">{{ index + 1 }}. {{ value }}</li>
+        <button @click="addTodo">添加待办</button>
+        <button @click="removeTodo">删除最后一个</button>
+        <button @click="updateTodo">修改第一个</button>
+      </ul>
+     </div>
+      <!-- 4. 深层响应式 -->
+    <div class="box">
+      <h3>深层响应式：</h3>
+      <p>公司：{{ company.name }}</p>
+      <p>地址：{{ company.address.city }} - {{ company.address.street }}</p>
+      <p>员工数量：{{ company.employees.length }}</p>
+      <button @click="updateCompany">更新公司信息</button>
+      <button @click="addEmployee">添加员工</button>
+    </div>
+
+    <!-- 5. 响应式调试 -->
+    <div class="box highlight">
+      <h3>响应式调试：</h3>
+      <p>当前数据状态：</p>
+      <pre>{{ JSON.stringify($data, null, 2) }}</pre>
+      <button @click="logData">在控制台查看数据</button>
+    </div>
+  </div>
+
+  <script>
+    const {createApp} = Vue;
+    createApp({
+      data() {
+        return {
+          message: '你好，ryan',
+          count: 0,
+          user: {
+            name: '小明',
+            age: 19,
+            city: '南京'
+          },
+          todos: ['学习Vue3', '写项目', '找工作'],
+           // 深层嵌套对象
+          company: {
+            name: '科技公司',
+            address: {
+              city: '上海',
+              street: '人民路123号'
+            },
+            employees: ['小明', '小红']
+          }
+        }
+      },
+      methods: {
+        // 更新基本信息
+        updateMessage() {
+          this.message = this.message + '消息已更新: ' + new Date().toLocaleDateString()
+        },
+        increment() {
+          this.count++
+        },
+        updateUser() {
+          this.user.name = '李四',
+          this.user.age = '21',
+          this.user.city = '北京'
+        },
+        addProperty() {
+          this.user.email = 'user@qq.com'
+        },
+        addTodo() {
+          this.todos.push('新的待办事项 ' + (this.todos.length + 1))
+        },
+        removeTodo() {
+          this.todos.pop()  
+        },
+        updateTodo() {
+          this.todos[0] = '修改第一个'
+        },
+          // 深层对象更新
+        updateCompany() {
+          this.company.name = '新科技公司'
+          this.company.address.city = '深圳'
+          this.company.address.street = '科技路456号'
+        },
+        
+        addEmployee() {
+          this.company.employees.push('新员工' + (this.company.employees.length + 1))
+        },
+        
+        // 调试方法
+        logData() {
+          console.log('当前数据：', this.$data)
+          console.log('用户对象：', this.user)
+          console.log('待办数组：', this.todos)
+        }
+      }
+    }).mount('#app')
+  </script>
+</body>
+</html>
