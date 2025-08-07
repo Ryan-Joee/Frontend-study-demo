@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>类与样式绑定演示</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    .container {
+      padding: 20px;
+    }
+    .box {
+      padding: 15px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    /* CSS类定义 */
+    .active {
+      color: #42b983;
+      font-weight: bold;
+    }
+    .danger {
+      color: #f56c6c;
+      background-color: #fef0f0;
+    }
+    .rounded {
+      border-radius: 10px;
+    }
+    .large {
+      font-size: 20px;
+    }
+    .border {
+      border: 2px solid #409eff;
+    }
+    .shadow {
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 1);
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <h2>类与样式绑定演示</h2>
+
+    <!-- 1. 对象语法绑定 class -->
+    <div class="box">
+      <h3>对象语法绑定 class：</h3>
+      <p :class="{ active: isActive, danger: hasError }">
+        这段文字的样式会根据数据状态变化
+      </p>
+      <p>isActive：{{ isActive }}, hasError: {{ hasError }}</p>
+      <button @click="isActive = !isActive">切换 isActive</button>
+      <button @click="hasError = !hasError">切换 hasError</button>
+    </div>
+
+    <!-- 2. 数组语法绑定 class -->
+    <div class="box">
+      <h3>数组语法绑定 class：</h3>
+      <div :class="[baseClass, ...dynamicClasses]" style="padding: 10px;">
+        这个元素使用数组语法绑定多个类
+      </div>
+      <p>当前类：{{ [baseClass, ...dynamicClasses].join(', ') }}</p>
+      <button @click="toggleClass('large')">切换字体大小</button>
+      <button @click="toggleClass('border')">切换边框</button>
+      <button @click="toggleClass('shadow')">切换阴影</button>
+    </div>
+  </div>
+  <script>
+    const { createApp } = Vue
+    createApp({
+      data() {
+        return {
+          isActive: true,
+          hasError: false,
+          baseClass: 'rounded',
+          dynamicClasses: ['large'],
+          conditionalClass: 'border',
+        }
+      },
+      methods: {
+        toggleClass(className) {
+          /* 
+          查看 className 在 dynamicClasses 数组中是否存在。
+          如果存在，会返回对应的索引（index ≥ 0）
+          如果不存在，返回 -1
+          */
+          const index = this.dynamicClasses.indexOf(className)
+          // 如果大于-1，说明动态数组中有这个class，是第二次点击，删除该class
+          if (index > -1) {
+            /* splice()：
+            从 this.dynamicClasses 这个数组中，
+            从位置 index 开始
+            删除 1 个元素
+            */
+            this.dynamicClasses.splice(index, 1)
+          } else {
+            // 第一次点击，添加该class
+            this.dynamicClasses.push(className)
+          }
+        },
+      }
+    }).mount('#app')
+
+  </script>
+</body>
+</html>

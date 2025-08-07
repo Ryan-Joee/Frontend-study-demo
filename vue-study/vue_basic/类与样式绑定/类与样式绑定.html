@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>Vue3 类与样式绑定演示</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    .container { padding: 20px; }
+    .box { padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+    
+    /* CSS类定义 */
+    .active { color: #42b983; font-weight: bold; }
+    .danger { color: #f56c6c; background-color: #fef0f0; }
+    .large { font-size: 20px; }
+    .border { border: 2px solid #409eff; }
+    .rounded { border-radius: 10px; }
+    .shadow { box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    
+    /* 按钮样式 */
+    .btn { padding: 8px 16px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+    .btn-primary { background-color: #409eff; color: white; }
+    .btn-success { background-color: #67c23a; color: white; }
+    .btn-warning { background-color: #e6a23c; color: white; }
+    .btn-danger { background-color: #f56c6c; color: white; }
+    
+    /* 状态指示器 */
+    .status-indicator { 
+      display: inline-block; 
+      width: 20px; 
+      height: 20px; 
+      border-radius: 50%; 
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <h2>类与样式绑定演示</h2>
+
+    <!-- 1. 对象语法绑定 class -->
+    <div class="box">
+      <h3>对象语法绑定 class：</h3>
+      <p :class="{ active: isActive, danger: hasError }">
+        这段文字的样式会根据数据状态变化
+      </p>
+      <p>isActive: {{ isActive }}, hasError: {{ hasError }}</p>
+      <button @click="isActive = !isActive">切换 Active</button>
+      <button @click="hasError = !hasError">切换 Error</button>
+    </div>
+
+    <!-- 2. 数组语法绑定 class -->
+    <div class="box">
+      <h3>数组语法绑定 class：</h3>
+      <div :class="[baseClass, ...dynamicClasses]" style="padding: 10px;">
+        这个元素使用数组语法绑定多个类
+      </div>
+      <p>当前类：{{ [baseClass, ...dynamicClasses].join(', ') }}</p>
+      <button @click="toggleClass('large')">切换大字体</button>
+      <button @click="toggleClass('border')">切换边框</button>
+      <button @click="toggleClass('shadow')">切换阴影</button>
+    </div>
+
+    <!-- 3. 混合语法 -->
+    <div class="box">
+      <h3>混合语法：</h3>
+      <div 
+        class="static-class"
+        :class="[
+          { active: isActive, danger: hasError },
+          conditionalClass,
+          'always-applied'
+        ]"
+        style="padding: 10px; background-color: #f9f9f9;"
+      >
+        静态类 + 动态类的组合
+      </div>
+    </div>
+
+    <!-- 4. 对象语法绑定 style -->
+    <div class="box">
+      <h3>对象语法绑定 style：</h3>
+      <p :style="{ 
+        color: textColor, 
+        fontSize: fontSize + 'px',
+        backgroundColor: bgColor,
+        padding: '10px'
+      }">
+        这段文字的样式完全由数据控制
+      </p>
+      <div>
+        <label>文字颜色：<input type="color" v-model="textColor"></label>
+        <label>字体大小：<input type="range" v-model="fontSize" min="12" max="30"> {{ fontSize }}px</label>
+        <label>背景颜色：<input type="color" v-model="bgColor"></label>
+      </div>
+    </div>
+
+    <!-- 5. 数组语法绑定 style -->
+    <div class="box">
+      <h3>数组语法绑定 style：</h3>
+      <div :style="[baseStyles, overrideStyles]">
+        使用数组语法合并多个样式对象
+      </div>
+      <button @click="changeTheme">切换主题</button>
+    </div>
+
+    <!-- 6. 实际应用：状态按钮 -->
+    <div class="box">
+      <h3>实际应用：状态按钮</h3>
+      <button 
+        v-for="(btn, index) in buttons" 
+        :key="index"
+        :class="['btn', `btn-${btn.type}`, { active: btn.active }]"
+        @click="setActiveButton(index)"
+      >
+        {{ btn.text }}
+      </button>
+      
+      <div style="margin-top: 15px;">
+        <div 
+          :class="['status-indicator']"
+          :style="{ backgroundColor: currentStatus.color }"
+        ></div>
+        当前状态：{{ currentStatus.text }}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue
+
+    createApp({
+      data() {
+        return {
+          // 基本状态
+          isActive: true,
+          hasError: false,
+          
+          // 数组语法相关
+          baseClass: 'rounded',
+          dynamicClasses: ['large'],
+          conditionalClass: 'border',
+          
+          // 样式绑定相关
+          textColor: '#333333',
+          fontSize: 16,
+          bgColor: '#ffffff',
+          
+          // 样式对象
+          baseStyles: {
+            padding: '20px',
+            border: '1px solid #ddd',
+            borderRadius: '8px'
+          },
+          overrideStyles: {
+            backgroundColor: '#f0f8ff',
+            color: '#333'
+          },
+          
+          // 按钮状态
+          buttons: [
+            { text: '主要', type: 'primary', active: true },
+            { text: '成功', type: 'success', active: false },
+            { text: '警告', type: 'warning', active: false },
+            { text: '危险', type: 'danger', active: false }
+          ],
+          
+          activeButtonIndex: 0
+        }
+      },
+      
+      computed: {
+        currentStatus() {
+          const statusMap = {
+            0: { text: '正常运行', color: '#409eff' },
+            1: { text: '运行良好', color: '#67c23a' },
+            2: { text: '需要注意', color: '#e6a23c' },
+            3: { text: '出现问题', color: '#f56c6c' }
+          }
+          return statusMap[this.activeButtonIndex] || statusMap[0]
+        }
+      },
+      
+      methods: {
+        // 切换动态类
+        toggleClass(className) {
+          const index = this.dynamicClasses.indexOf(className)
+          if (index > -1) {
+            this.dynamicClasses.splice(index, 1)
+          } else {
+            this.dynamicClasses.push(className)
+          }
+        },
+        
+        // 切换主题
+        changeTheme() {
+          if (this.overrideStyles.backgroundColor === '#f0f8ff') {
+            this.overrideStyles = {
+              backgroundColor: '#2c3e50',
+              color: '#ecf0f1'
+            }
+          } else {
+            this.overrideStyles = {
+              backgroundColor: '#f0f8ff',
+              color: '#333'
+            }
+          }
+        },
+        
+        // 设置活动按钮
+        setActiveButton(index) {
+          this.buttons.forEach((btn, i) => {
+            btn.active = i === index
+          })
+          this.activeButtonIndex = index
+        }
+      }
+    }).mount('#app')
+  </script>
+</body>
+</html>
