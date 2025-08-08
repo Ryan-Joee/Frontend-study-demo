@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>Vue3 表单输入绑定演示</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    .container { padding: 20px; }
+    .box { padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+    .form-group { margin: 10px 0; }
+    .form-group label { display: inline-block; width: 100px; font-weight: bold; }
+    .form-group input, .form-group textarea, .form-group select { 
+      padding: 5px; margin-left: 10px; border: 1px solid #ccc; border-radius: 3px; 
+    }
+    .preview { background-color: #f9f9f9; padding: 10px; border-radius: 5px; margin-top: 10px; }
+    .checkbox-group, .radio-group { margin: 5px 0; }
+    .error { color: #f56c6c; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <h2>表单输入绑定演示</h2>
+
+    <!-- 1. 文本输入 -->
+    <div class="box">
+      <h3>文本输入：</h3>
+      <div class="form-group">
+        <label>普通输入：</label>
+        <input type="text" v-model="textInput" placeholder="输入文字">
+        <span>值：{{ textInput }}</span>
+      </div>
+      
+      <div class="form-group">
+        <label>懒更新：</label>
+        <input type="text" v-model.lazy="lazyInput" placeholder="失去焦点时更新">
+        <span>值：{{ lazyInput }}</span>
+      </div>
+      
+      <div class="form-group">
+        <label>去除空格：</label>
+        <input type="text" v-model.trim="trimInput" placeholder="自动去除首尾空格">
+        <span>值："{{ trimInput }}"</span>
+      </div>
+    </div>
+
+    <!-- 2. 数字输入 -->
+    <div class="box">
+      <h3>数字输入：</h3>
+      <div class="form-group">
+        <label>普通输入：</label>
+        <input type="number" v-model="numberInput">
+        <span>值：{{ numberInput }} (类型：{{ typeof numberInput }})</span>
+      </div>
+      
+      <div class="form-group">
+        <label>自动转数字：</label>
+        <input type="text" v-model.number="autoNumber">
+        <span>值：{{ autoNumber }} (类型：{{ typeof autoNumber }})</span>
+      </div>
+      
+      <div class="form-group">
+        <label>范围滑块：</label>
+        <input type="range" v-model.number="rangeValue" min="0" max="100">
+        <span>值：{{ rangeValue }}</span>
+      </div>
+    </div>
+
+    <!-- 3. 多行文本 -->
+    <div class="box">
+      <h3>多行文本：</h3>
+      <div class="form-group">
+        <label>文本域：</label>
+        <textarea v-model="textareaValue" rows="4" cols="30" placeholder="输入多行文字"></textarea>
+      </div>
+      <div class="preview">
+        <strong>预览：</strong><br>
+        <pre>{{ textareaValue }}</pre>
+      </div>
+    </div>
+
+    <!-- 4. 单选按钮 -->
+    <div class="box">
+      <h3>单选按钮：</h3>
+      <div class="radio-group">
+        <label>选择性别：</label>
+        <label><input type="radio" v-model="gender" value="male"> 男</label>
+        <label><input type="radio" v-model="gender" value="female"> 女</label>
+        <label><input type="radio" v-model="gender" value="other"> 其他</label>
+      </div>
+      <p>选择的性别：{{ gender }}</p>
+    </div>
+
+    <!-- 5. 复选框 -->
+    <div class="box">
+      <h3>复选框：</h3>
+      
+      <!-- 单个复选框 -->
+      <div class="checkbox-group">
+        <label>
+          <input type="checkbox" v-model="agreement">
+          我同意用户协议
+        </label>
+        <p>同意状态：{{ agreement }}</p>
+      </div>
+      
+      <!-- 多个复选框 -->
+      <div class="checkbox-group">
+        <label>选择爱好：</label><br>
+        <label><input type="checkbox" v-model="hobbies" value="reading"> 阅读</label>
+        <label><input type="checkbox" v-model="hobbies" value="music"> 音乐</label>
+        <label><input type="checkbox" v-model="hobbies" value="sports"> 运动</label>
+        <label><input type="checkbox" v-model="hobbies" value="travel"> 旅行</label>
+        <label><input type="checkbox" v-model="hobbies" value="coding"> 编程</label>
+      </div>
+      <p>选择的爱好：{{ hobbies.join(', ') }}</p>
+    </div>
+
+    <!-- 6. 选择框 -->
+    <div class="box">
+      <h3>选择框：</h3>
+      
+      <!-- 单选下拉框 -->
+      <div class="form-group">
+        <label>选择城市：</label>
+        <select v-model="selectedCity">
+          <option disabled value="">请选择</option>
+          <option value="beijing">北京</option>
+          <option value="shanghai">上海</option>
+          <option value="guangzhou">广州</option>
+          <option value="shenzhen">深圳</option>
+        </select>
+        <span>选择的城市：{{ selectedCity }}</span>
+      </div>
+      
+      <!-- 多选下拉框 -->
+      <div class="form-group">
+        <label>选择技能：</label>
+        <select v-model="selectedSkills" multiple style="height: 100px;">
+          <option value="html">HTML</option>
+          <option value="css">CSS</option>
+          <option value="javascript">JavaScript</option>
+          <option value="vue">Vue.js</option>
+          <option value="react">React</option>
+          <option value="nodejs">Node.js</option>
+        </select>
+        <span>选择的技能：{{ selectedSkills.join(', ') }}</span>
+      </div>
+    </div>
+
+    <!-- 7. 表单验证示例 -->
+    <div class="box">
+      <h3>表单验证示例：</h3>
+      <form @submit.prevent="submitForm">
+        <div class="form-group">
+          <label>用户名：</label>
+          <input 
+            type="text" 
+            v-model.trim="form.username" 
+            :class="{ error: errors.username }"
+            placeholder="至少3个字符"
+          >
+          <div v-if="errors.username" class="error">{{ errors.username }}</div>
+        </div>
+        
+        <div class="form-group">
+          <label>邮箱：</label>
+          <input 
+            type="email" 
+            v-model.trim="form.email"
+            :class="{ error: errors.email }"
+            placeholder="请输入有效邮箱"
+          >
+          <div v-if="errors.email" class="error">{{ errors.email }}</div>
+        </div>
+        
+        <div class="form-group">
+          <label>年龄：</label>
+          <input 
+            type="number" 
+            v-model.number="form.age"
+            :class="{ error: errors.age }"
+            min="1" max="120"
+          >
+          <div v-if="errors.age" class="error">{{ errors.age }}</div>
+        </div>
+        
+        <button type="submit">提交表单</button>
+        <button type="button" @click="resetForm">重置</button>
+      </form>
+    </div>
+
+    <!-- 8. 数据预览 -->
+    <div class="box preview">
+      <h3>所有表单数据：</h3>
+      <pre>{{ JSON.stringify({
+        textInput,
+        lazyInput,
+        trimInput,
+        numberInput,
+        autoNumber,
+        rangeValue,
+        textareaValue,
+        gender,
+        agreement,
+        hobbies,
+        selectedCity,
+        selectedSkills,
+        form
+      }, null, 2) }}</pre>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue
+
+    createApp({
+      data() {
+        return {
+          // 文本输入
+          textInput: '',
+          lazyInput: '',
+          trimInput: '',
+          
+          // 数字输入
+          numberInput: 0,
+          autoNumber: 0,
+          rangeValue: 50,
+          
+          // 多行文本
+          textareaValue: '',
+          
+          // 单选按钮
+          gender: '',
+          
+          // 复选框
+          agreement: false,
+          hobbies: [],
+          
+          // 选择框
+          selectedCity: '',
+          selectedSkills: [],
+          
+          // 表单验证
+          form: {
+            username: '',
+            email: '',
+            age: ''
+          },
+          errors: {}
+        }
+      },
+      
+      methods: {
+        // 表单验证
+        validateForm() {
+          this.errors = {}
+          
+          // 用户名验证
+          if (!this.form.username) {
+            this.errors.username = '用户名不能为空'
+          } else if (this.form.username.length < 3) {
+            this.errors.username = '用户名至少3个字符'
+          }
+          
+          // 邮箱验证
+          if (!this.form.email) {
+            this.errors.email = '邮箱不能为空'
+          } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email)) {
+            this.errors.email = '请输入有效的邮箱地址'
+          }
+          
+          // 年龄验证
+          if (!this.form.age) {
+            this.errors.age = '年龄不能为空'
+          } else if (this.form.age < 1 || this.form.age > 120) {
+            this.errors.age = '年龄必须在1-120之间'
+          }
+          
+          return Object.keys(this.errors).length === 0
+        },
+        
+        // 提交表单
+        submitForm() {
+          if (this.validateForm()) {
+            alert('表单提交成功！\n' + JSON.stringify(this.form, null, 2))
+          }
+        },
+        
+        // 重置表单
+        resetForm() {
+          this.form = {
+            username: '',
+            email: '',
+            age: ''
+          }
+          this.errors = {}
+        }
+      },
+      
+      // 实时验证
+      watch: {
+        'form.username'() {
+          if (this.errors.username) {
+            this.validateForm()
+          }
+        },
+        'form.email'() {
+          if (this.errors.email) {
+            this.validateForm()
+          }
+        },
+        'form.age'() {
+          if (this.errors.age) {
+            this.validateForm()
+          }
+        }
+      }
+    }).mount('#app')
+  </script>
+</body>
+</html>
