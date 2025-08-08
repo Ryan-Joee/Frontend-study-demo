@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>Vue3 模板引用演示</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    .container { padding: 20px; }
+    .box { padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+    .scroll-area { height: 100px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; }
+    .highlight { background-color: #ffffcc; padding: 5px; }
+    button { margin: 5px; padding: 5px 10px; }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <h2>模板引用演示</h2>
+
+    <!-- 1. 基本元素引用 -->
+    <div class="box">
+      <h3>1. 基本元素引用：</h3>
+      <input 
+        ref="usernameInput" 
+        type="text" 
+        placeholder="用户名"
+        v-model="username"
+      >
+      <button @click="focusInput">聚焦输入框</button>
+      <button @click="clearInput">清空输入框</button>
+      <button @click="getInputValue">获取输入框值</button>
+      <p>输入的用户名：{{ username }}</p>
+    </div>
+
+    <!-- 2. 测量元素尺寸 -->
+    <div class="box">
+      <h3>2. 测量元素尺寸：</h3>
+      <div ref="measureBox" class="highlight" :style="{ width: boxWidth + 'px' }">
+        这是一个可调整大小的盒子
+      </div>
+      <div>
+        <label>宽度：</label>
+        <input type="range" v-model.number="boxWidth" min="100" max="400">
+        {{ boxWidth }}px
+      </div>
+      <button @click="measureElement">测量元素尺寸</button>
+      <p v-if="measurements">
+        测量结果：宽度 {{ measurements.width }}px，高度 {{ measurements.height }}px
+      </p>
+    </div>
+
+    <!-- 3. 滚动控制 -->
+    <div class="box">
+      <h3>3. 滚动控制：</h3>
+      <div ref="scrollContainer" class="scroll-area">
+        <div v-for="n in 20" :key="n" :ref="'item' + n">
+          第 {{ n }} 行内容 - {{ 'Lorem ipsum dolor sit amet '.repeat(3) }}
+        </div>
+      </div>
+      <div>
+        <button @click="scrollToTop">滚动到顶部</button>
+        <button @click="scrollToBottom">滚动到底部</button>
+        <button @click="scrollToItem(10)">滚动到第10行</button>
+      </div>
+    </div>
+
+    <!-- 4. 组件引用 -->
+    <div class="box">
+      <h3>4. 组件引用：</h3>
+      <my-counter ref="counterComponent"></my-counter>
+      <div style="margin-top: 10px;">
+        <button @click="incrementCounter">父组件控制：+1</button>
+        <button @click="resetCounter">父组件控制：重置</button>
+        <button @click="getCounterValue">获取计数器值</button>
+      </div>
+    </div>
+
+    <!-- 5. v-for 中的引用 -->
+    <div class="box">
+      <h3>5. v-for 中的引用：</h3>
+      <div>
+        <input 
+          v-for="(item, index) in todoList" 
+          :key="item.id"
+          :ref="'todoInput' + index"
+          v-model="item.text"
+          style="display: block; margin: 5px 0; width: 200px;"
+        >
+      </div>
+      <button @click="addTodo">添加待办</button>
+      <button @click="focusLastInput">聚焦最后一个输入框</button>
+      <button @click="getAllTodoValues">获取所有待办内容</button>
+    </div>
+
+    <!-- 6. $nextTick 示例 -->
+    <div class="box">
+      <h3>6. $nextTick 示例：</h3>
+      <div ref="dynamicContent">
+        <p v-for="line in contentLines" :key="line">{{ line }}</p>
+      </div>
+      <button @click="addContentAndMeasure">添加内容并测量高度</button>
+      <p v-if="contentHeight">内容区域高度：{{ contentHeight }}px</p>
+    </div>
+
+    <!-- 7. 调试：查看所有引用 -->
+    <div class="box">
+      <h3>7. 调试：查看所有引用</h3>
+      <button @click="logAllRefs">在控制台查看 $refs</button>
+      <p>打开浏览器控制台查看输出</p>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue
+
+    // 创建主应用
+    const app = createApp({
+      data() {
+        return {
+          // 基本数据
+          username: '',
+          boxWidth: 200,
+          measurements: null,
+          
+          // 待办列表
+          todoList: [
+            { id: 1, text: '学习Vue3' },
+            { id: 2, text: '掌握模板引用' }
+          ],
+          nextTodoId: 3,
+          
+          // 动态内容
+          contentLines: ['第一行内容'],
+          contentHeight: null
+        }
+      },
+      
+      methods: {
+        // 1. 基本元素引用
+        focusInput() {
+          this.$refs.usernameInput.focus()
+        },
+        
+        clearInput() {
+          this.$refs.usernameInput.value = ''
+          this.username = ''
+          this.$refs.usernameInput.focus()
+        },
+        
+        getInputValue() {
+          const value = this.$refs.usernameInput.value
+          alert(`输入框的值是：${value}`)
+        },
+        
+        // 2. 测量元素
+        measureElement() {
+          const element = this.$refs.measureBox
+          this.measurements = {
+            width: element.offsetWidth,
+            height: element.offsetHeight
+          }
+        },
+        
+        // 3. 滚动控制
+        scrollToTop() {
+          this.$refs.scrollContainer.scrollTop = 0
+        },
+        
+        scrollToBottom() {
+          const container = this.$refs.scrollContainer
+          container.scrollTop = container.scrollHeight
+        },
+        
+        scrollToItem(itemNumber) {
+          const item = this.$refs['item' + itemNumber]
+          if (item && item[0]) {  // v-for生成的ref是数组
+            item[0].scrollIntoView({ behavior: 'smooth' })
+          }
+        },
+        
+        // 4. 组件引用
+        incrementCounter() {
+          this.$refs.counterComponent.increment()
+        },
+        
+        resetCounter() {
+          this.$refs.counterComponent.reset()
+        },
+        
+        getCounterValue() {
+          const value = this.$refs.counterComponent.getCount()
+          alert(`计数器的值是：${value}`)
+        },
+        
+        // 5. v-for引用
+        addTodo() {
+          this.todoList.push({
+            id: this.nextTodoId++,
+            text: '新的待办事项'
+          })
+        },
+        
+        focusLastInput() {
+          this.$nextTick(() => {
+            const lastIndex = this.todoList.length - 1
+            const lastInput = this.$refs['todoInput' + lastIndex]
+            if (lastInput && lastInput[0]) {
+              lastInput[0].focus()
+            }
+          })
+        },
+        
+        getAllTodoValues() {
+          const values = this.todoList.map((item, index) => {
+            const input = this.$refs['todoInput' + index]
+            return input && input[0] ? input[0].value : ''
+          })
+          console.log('所有待办内容：', values)
+          alert('控制台已输出所有待办内容')
+        },
+        
+        // 6. $nextTick示例
+        addContentAndMeasure() {
+          // 先添加内容
+          this.contentLines.push(`第${this.contentLines.length + 1}行内容`)
+          
+          // 等待DOM更新后再测量
+          this.$nextTick(() => {
+            const element = this.$refs.dynamicContent
+            this.contentHeight = element.offsetHeight
+          })
+        },
+        
+        // 7. 调试方法
+        logAllRefs() {
+          console.log('所有引用：', this.$refs)
+          console.log('用户名输入框：', this.$refs.usernameInput)
+          console.log('计数器组件：', this.$refs.counterComponent)
+        }
+      }
+    })
+
+    // 注册子组件
+    app.component('my-counter', {
+      data() {
+        return {
+          count: 0
+        }
+      },
+      methods: {
+        increment() {
+          this.count++
+        },
+        reset() {
+          this.count = 0
+        },
+        getCount() {
+          return this.count
+        }
+      },
+      template: `
+        <div style="padding: 10px; border: 1px solid #eee; border-radius: 3px;">
+          <p>计数器：{{ count }}</p>
+          <button @click="increment">内部 +1</button>
+          <button @click="reset">内部重置</button>
+        </div>
+      `
+    })
+
+    // 挂载应用
+    app.mount('#app')
+  </script>
+</body>
+</html>

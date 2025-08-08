@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>模板引用演示</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    .container {
+      padding: 20px;
+    }
+    .box {
+      margin: 10px 0;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .heighlight {
+      background-color: #ffffcc;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <h2>模板引用演示</h2>
+
+    <!-- 1. 基本元素引用 -->
+    <div class="box">
+      <h3>1. 基本元素引用：</h3>
+      <input ref="usernameInput" type="text" v-model="username" placeholder="用户名">
+      <button @click="focusInput">聚焦输入框</button>
+      <button @click="clearInput">清空输入框</button>
+      <button @click="getInputValue">获取输入框值</button>
+      <p>用户名：{{ username }}</p>
+    </div>
+    <!-- 2. 测量元素尺寸 -->
+    <div class="box">
+      <h3>2. 测量元素尺寸</h3>
+      <div ref="measureBox" class="heighlight" :style="{ width: boxWidth + 'px'}">
+        这是一个可调整大小的盒子
+      </div>
+      <div>
+        <span>宽度：</span>
+        <input type="range" v-model.number="boxWidth" min="100" max="400">
+        {{ boxWidth }} px
+      </div>
+      <button @click="measureElement">测量元素尺寸</button>
+      <p v-if="measurements">
+        测量结果：宽度 {{ measurements.width }}, 高度 {{ measurements.height }}px
+      </p>
+    </div>
+    <!-- 3. 滚动控制 -->
+    <div class="box">
+      <h3>3. 滚动控制：</h3>
+      
+    </div>
+  </div>
+</body>
+  <script>
+    const { createApp } = Vue
+    const app = createApp({
+      data() {
+        return {
+          username: '',
+          boxWidth: 200,
+          measurements: null,
+        }
+      },
+      methods: {
+        focusInput() {
+          this.$refs.usernameInput.focus()
+        },
+        clearInput() {
+          this.$refs.usernameInput.value = ''
+          this.username = ''
+          this.$refs.usernameInput.focus()
+        },
+        getInputValue() {
+          const value = this.$refs.usernameInput.value
+          alert(`输入框值：${value}`)
+        },
+        measureElement() {
+          const element = this.$refs.measureBox
+          this.measurements = {
+            width: element.offsetWidth,
+            height: element.offsetHeight
+          }
+        },
+
+      }
+    })
+    app.mount('#app')
+  </script>
+</html>
