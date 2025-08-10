@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>组件基础演示</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    .container {
+      padding: 20px;
+    }
+    .box {
+      padding: 15px;
+      margin: 10px 0; border: 1px solid #ddd; border-radius: 5px;
+    }
+    /* 给组件样式 */
+    .button-counter {
+      display: inline-block;
+      padding: 10px;
+      margin: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+    .blog-post {
+      padding: 10px;
+      margin: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <h2>组件基础演示</h2>
+
+    <!-- 1. 基本组件使用 -->
+     <div class="box">
+      <h3>1. 基本组件使用</h3>
+      <p>每个按钮计数器都是独立的组件实例：</p>
+      <!-- 组件使用 -->
+      <button-counter></button-counter>
+      <button-counter></button-counter>
+      <button-counter></button-counter>
+     </div>
+     <!-- 2. Props：父传子 -->
+      <div class="box">
+        <h3>2. Props: 父传子 </h3>
+        <blog-post
+          titleh="Vue3学习指南"
+          author="小明"
+          :likes=42
+          :published="true"
+        >
+        </blog-post>
+        <blog-post
+          title="组件化开发实践"
+          author="小红"
+          :likes="38"
+          :published="false"
+        >
+        </blog-post>
+        <!-- 使用v-for渲染多个组件 -->
+        <blog-post 
+          v-for="post in blogPosts"
+          :key="post.id"
+          :title="post.title"
+          :author="post.author"
+          :likes="post.likes"
+          :published="post.published"
+        >
+        </blog-post>
+      </div>
+    <!-- 3. 自定义事件：子传父 -->
+    <div class="box">
+      <h3>3. 自定义事件：子传父</h3>
+      <p>总点赞数：{{ totalLikes }}</p>
+      <like-button
+        v-for="article in articles"
+        :key="article.id"
+        :article-title="article.title"
+        :initial-likes="article.likes"
+        @like="onLike"
+        @unlike="onUnlike"
+      ></like-button>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+    const app = createApp({
+      data() {
+        return {
+          // Props演示数据
+          blogPosts: [
+            { id: 3, title: '响应式原理深度解析', author: '小刚', likes: 25, published: true },
+            { id: 4, title: 'Vue3新特性详解', author: '小丽', likes: 33, published: true }
+          ],
+          totalLikes: 0,
+          articles: [
+            { id: 1, title: 'Vue3入门教程', likes: 15 },
+            { id: 2, title: '组件通信详解', likes: 22 },
+            { id: 3, title: '状态管理实践', likes: 18 }
+          ],
+ 
+        }
+      },
+      methods: {
+        onLike() {
+          this.totalLikes++
+        },
+        onUnlike() {
+          this.totalLikes--
+        },
+      },
+    })
+    // 1. 基本按钮计数器组件
+    // (1) 注册组件button-counter
+    app.component('button-counter', {
+      // 组件的数据项
+      data() {
+        return { 
+          count: 0
+        }
+      },
+      // 组件的HTML模板
+      template: `
+        <div class="button-counter">
+          <button @click="count++">点击了：{{ count }} 次 </button>
+        </div>
+      `
+    })
+    // 2. 博客文章组件（展示Props）
+    app.component('blog-post', {
+      props: {
+        title: String,
+        author: String,
+        likes: Number,
+        published: Boolean
+      },
+      template: `
+      <div class="blog-post">
+      <h4>{{ title }}</h4>
+      <p>作者：{{ author }} </p>
+      <p>点赞数：{{ likes }} </p>
+      <p>状态：
+        <span :style="{color: published ? 'green' : 'orange'}">
+          {{ published ? '已发布' : '草稿' }}
+        </span>
+      </p>
+      </div>
+      `
+    })
+
+    // 3. 点赞按钮组件（展示自定义事件）
+    app.component('like-button', {
+      props: {
+        articleTitle: String,
+        initialLikes: Number
+      },
+      data() {
+        return {
+          likes: this.initialLikes,
+          isLike: false
+        }
+      },
+      methods: {
+        toggleLike() {
+          if(this.isLike) {
+            this.likes--,
+            this.isLike = false,
+            this.$emit('unlike')
+          } else {
+            this.likes++,
+            this.isLike = true,
+            this.$emit('like')
+          }
+        }
+      },
+      template: `
+        <div style="padding: 10px; margin: 5px; border: 1px solid #ddd; border-radius: 5px;">
+          <h5>{{ articleTitle }}</h5>
+          <button 
+            @click="toggleLike"
+            :style="{ 
+              backgroundColor: isLike ? '#f56c6c' : '#409eff',
+              color: 'white',
+              border: 'none',
+              padding: '5px 10px',
+              borderRadius: '3px'
+            }"
+          >
+            {{ isLike ? '取消点赞' : '点赞' }} ({{ likes }})
+          </button>
+        </div>
+      `
+    })
+    
+
+    app.mount('#app')
+  </script>
+</body>
+</html>

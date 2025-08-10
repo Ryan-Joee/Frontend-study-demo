@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>Vue3 组件基础演示</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    .container { padding: 20px; }
+    .box { padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+    .button-counter { 
+      display: inline-block; 
+      padding: 10px; 
+      margin: 5px; 
+      border: 1px solid #ccc; 
+      border-radius: 5px; 
+      background-color: #f9f9f9;
+    }
+    .blog-post { 
+      padding: 15px; 
+      margin: 10px 0; 
+      border: 1px solid #eee; 
+      border-radius: 5px; 
+      background-color: #fafafa;
+    }
+    .alert { 
+      padding: 10px; 
+      margin: 10px 0; 
+      border-radius: 5px; 
+      border-left: 4px solid #409eff;
+      background-color: #ecf5ff;
+    }
+    .todo-item { 
+      display: flex; 
+      align-items: center; 
+      padding: 8px; 
+      margin: 5px 0; 
+      border: 1px solid #ddd; 
+      border-radius: 3px;
+    }
+    .completed { text-decoration: line-through; color: #999; }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <h2>组件基础演示</h2>
+
+    <!-- 1. 基本组件使用 -->
+    <div class="box">
+      <h3>1. 基本组件：</h3>
+      <p>每个按钮计数器都是独立的组件实例：</p>
+      <button-counter></button-counter>
+      <button-counter></button-counter>
+      <button-counter></button-counter>
+    </div>
+
+    <!-- 2. Props：父传子 -->
+    <div class="box">
+      <h3>2. Props（父传子）：</h3>
+      <blog-post 
+        title="Vue3学习指南"
+        author="小明"
+        :likes="42"
+        :published="true"
+      ></blog-post>
+      
+      <blog-post 
+        title="组件化开发实践"
+        author="小红"
+        :likes="38"
+        :published="false"
+      ></blog-post>
+      
+      <!-- 使用v-for渲染多个组件 -->
+      <blog-post
+        v-for="post in blogPosts"
+        :key="post.id"
+        :title="post.title"
+        :author="post.author"
+        :likes="post.likes"
+        :published="post.published"
+      ></blog-post>
+    </div>
+
+    <!-- 3. 自定义事件：子传父 -->
+    <div class="box">
+      <h3>3. 自定义事件（子传父）：</h3>
+      <p>总点赞数：{{ totalLikes }}</p>
+      <like-button 
+        v-for="article in articles"
+        :key="article.id"
+        :article-title="article.title"
+        :initial-likes="article.likes"
+        @like="onLike"
+        @unlike="onUnlike"
+      ></like-button>
+    </div>
+
+    <!-- 4. 插槽：内容分发 -->
+    <div class="box">
+      <h3>4. 插槽（内容分发）：</h3>
+      <alert-box>
+        这是一条<strong>重要</strong>的提示信息！
+      </alert-box>
+      
+      <alert-box>
+        <h4>系统通知</h4>
+        <p>您有新的消息，请及时查看。</p>
+        <button>查看详情</button>
+      </alert-box>
+    </div>
+
+    <!-- 5. 完整示例：待办事项组件 -->
+    <div class="box">
+      <h3>5. 完整示例：待办事项应用</h3>
+      <todo-app></todo-app>
+    </div>
+
+    <!-- 6. 动态组件 -->
+    <div class="box">
+      <h3>6. 动态组件：</h3>
+      <button 
+        v-for="tab in tabs" 
+        :key="tab"
+        @click="currentTab = tab"
+        :style="{ 
+          backgroundColor: currentTab === tab ? '#409eff' : '#f0f0f0',
+          color: currentTab === tab ? 'white' : 'black',
+          margin: '0 5px',
+          padding: '5px 10px',
+          border: 'none',
+          borderRadius: '3px'
+        }"
+      >
+        {{ tab }}
+      </button>
+      
+      <component :is="currentTabComponent" style="margin-top: 15px;"></component>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue
+
+    // 创建应用实例
+    const app = createApp({
+      data() {
+        return {
+          // Props演示数据
+          blogPosts: [
+            { id: 3, title: '响应式原理深度解析', author: '小刚', likes: 25, published: true },
+            { id: 4, title: 'Vue3新特性详解', author: '小丽', likes: 33, published: true }
+          ],
+          
+          // 事件演示数据
+          totalLikes: 0,
+          articles: [
+            { id: 1, title: 'Vue3入门教程', likes: 15 },
+            { id: 2, title: '组件通信详解', likes: 22 },
+            { id: 3, title: '状态管理实践', likes: 18 }
+          ],
+          
+          // 动态组件
+          tabs: ['Home', 'Profile', 'Settings'],
+          currentTab: 'Home'
+        }
+      },
+      
+      computed: {
+        currentTabComponent() {
+          return 'tab-' + this.currentTab.toLowerCase()
+        }
+      },
+      
+      methods: {
+        onLike() {
+          this.totalLikes++
+        },
+        
+        onUnlike() {
+          this.totalLikes--
+        }
+      }
+    })
+
+    // 1. 基本按钮计数器组件
+    app.component('button-counter', {
+      data() {
+        return {
+          count: 0
+        }
+      },
+      template: `
+        <div class="button-counter">
+          <button @click="count++">点击了 {{ count }} 次</button>
+        </div>
+      `
+    })
+
+    // 2. 博客文章组件（展示Props）
+    app.component('blog-post', {
+      props: {
+        title: String,
+        author: String,
+        likes: Number,
+        published: Boolean
+      },
+      template: `
+        <div class="blog-post">
+          <h4>{{ title }}</h4>
+          <p>作者：{{ author }}</p>
+          <p>点赞数：{{ likes }}</p>
+          <p>状态：<span :style="{ color: published ? 'green' : 'orange' }">
+            {{ published ? '已发布' : '草稿' }}
+          </span></p>
+        </div>
+      `
+    })
+
+    // 3. 点赞按钮组件（展示自定义事件）
+    app.component('like-button', {
+      props: {
+        articleTitle: String,
+        initialLikes: Number
+      },
+      data() {
+        return {
+          likes: this.initialLikes,
+          isLiked: false
+        }
+      },
+      methods: {
+        toggleLike() {
+          if (this.isLiked) {
+            this.likes--
+            this.isLiked = false
+            this.$emit('unlike')
+          } else {
+            this.likes++
+            this.isLiked = true
+            this.$emit('like')
+          }
+        }
+      },
+      template: `
+        <div style="padding: 10px; margin: 5px; border: 1px solid #ddd; border-radius: 5px;">
+          <h5>{{ articleTitle }}</h5>
+          <button 
+            @click="toggleLike"
+            :style="{ 
+              backgroundColor: isLiked ? '#f56c6c' : '#409eff',
+              color: 'white',
+              border: 'none',
+              padding: '5px 10px',
+              borderRadius: '3px'
+            }"
+          >
+            {{ isLiked ? '取消点赞' : '点赞' }} ({{ likes }})
+          </button>
+        </div>
+      `
+    })
+
+    // 4. 警告框组件（展示插槽）
+    app.component('alert-box', {
+      template: `
+        <div class="alert">
+          <slot></slot>
+        </div>
+      `
+    })
+
+    // 5. 待办事项应用组件
+    app.component('todo-app', {
+      data() {
+        return {
+          newTodo: '',
+          todos: [
+            { id: 1, text: '学习Vue3基础', completed: false },
+            { id: 2, text: '掌握组件通信', completed: false },
+            { id: 3, text: '完成项目实践', completed: true }
+          ],
+          nextId: 4
+        }
+      },
+      methods: {
+        addTodo() {
+          if (this.newTodo.trim()) {
+            this.todos.push({
+              id: this.nextId++,
+              text: this.newTodo,
+              completed: false
+            })
+            this.newTodo = ''
+          }
+        },
+        
+        removeTodo(id) {
+          this.todos = this.todos.filter(todo => todo.id !== id)
+        }
+      },
+      template: `
+        <div>
+          <div style="margin-bottom: 15px;">
+            <input 
+              v-model="newTodo" 
+              @keyup.enter="addTodo"
+              placeholder="添加新的待办事项..."
+              style="padding: 5px; margin-right: 10px; width: 200px;"
+            >
+            <button @click="addTodo">添加</button>
+          </div>
+          
+          <todo-item
+            v-for="todo in todos"
+            :key="todo.id"
+            :todo="todo"
+            @remove="removeTodo"
+          ></todo-item>
+        </div>
+      `
+    })
+
+    // 待办事项子组件
+    app.component('todo-item', {
+      props: {
+        todo: Object
+      },
+      template: `
+        <div class="todo-item">
+          <input 
+            type="checkbox" 
+            v-model="todo.completed"
+            style="margin-right: 10px;"
+          >
+          <span :class="{ completed: todo.completed }" style="flex: 1;">
+            {{ todo.text }}
+          </span>
+          <button 
+            @click="$emit('remove', todo.id)"
+            style="background-color: #f56c6c; color: white; border: none; padding: 2px 6px; border-radius: 3px;"
+          >
+            删除
+          </button>
+        </div>
+      `
+    })
+
+    // 6. 动态组件示例
+    app.component('tab-home', {
+      template: `
+        <div style="padding: 15px; background-color: #f0f8ff; border-radius: 5px;">
+          <h4>首页</h4>
+          <p>欢迎来到首页，这里是主要内容区域。</p>
+        </div>
+      `
+    })
+
+    app.component('tab-profile', {
+      template: `
+        <div style="padding: 15px; background-color: #f0fff0; border-radius: 5px;">
+          <h4>个人资料</h4>
+          <p>这里显示用户的个人信息和设置。</p>
+        </div>
+      `
+    })
+
+    app.component('tab-settings', {
+      template: `
+        <div style="padding: 15px; background-color: #fff8f0; border-radius: 5px;">
+          <h4>设置</h4>
+          <p>应用程序的各种配置选项。</p>
+        </div>
+      `
+    })
+
+    // 挂载应用
+    app.mount('#app')
+  </script>
+</body>
+</html>
