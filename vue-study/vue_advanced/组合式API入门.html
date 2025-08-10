@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>Vue3 组合式API入门</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    .container { padding: 20px; }
+    .box { padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+    .comparison { display: flex; gap: 20px; }
+    .comparison > div { flex: 1; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+    .options-api { background-color: #fff3cd; }
+    .composition-api { background-color: #d1ecf1; }
+    .todo-item { display: flex; align-items: center; margin: 5px 0; }
+    .completed { text-decoration: line-through; color: #999; }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <h2>组合式API入门</h2>
+
+    <!-- 1. 对比：选项式 vs 组合式 -->
+    <div class="box">
+      <h3>1. API风格对比：</h3>
+      <div class="comparison">
+        <div class="options-api">
+          <h4>选项式API组件</h4>
+          <options-counter></options-counter>
+        </div>
+        <div class="composition-api">
+          <h4>组合式API组件</h4>
+          <composition-counter></composition-counter>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 响应式基础：ref vs reactive -->
+    <div class="box">
+      <h3>2. 响应式基础：</h3>
+      <reactive-demo></reactive-demo>
+    </div>
+
+    <!-- 3. 计算属性和侦听器 -->
+    <div class="box">
+      <h3>3. 计算属性和侦听器：</h3>
+      <computed-watch-demo></computed-watch-demo>
+    </div>
+
+    <!-- 4. 生命周期钩子 -->
+    <div class="box">
+      <h3>4. 生命周期钩子：</h3>
+      <lifecycle-composition-demo v-if="showLifecycleDemo"></lifecycle-composition-demo>
+      <button @click="showLifecycleDemo = !showLifecycleDemo">
+        {{ showLifecycleDemo ? '销毁组件' : '创建组件' }}
+      </button>
+    </div>
+
+    <!-- 5. 完整示例：待办事项应用 -->
+    <div class="box">
+      <h3>5. 完整示例：待办事项应用（组合式API）</h3>
+      <todo-app-composition></todo-app-composition>
+    </div>
+  </div>
+
+  <script>
+    const { createApp, ref, reactive, computed, watch, onMounted, onUnmounted, onUpdated } = Vue
+
+    // 主应用
+    const app = createApp({
+      data() {
+        return {
+          showLifecycleDemo: false
+        }
+      }
+    })
+
+    // 1. 选项式API计数器（对比用）
+    app.component('options-counter', {
+      data() {
+        return {
+          count: 0
+        }
+      },
+      computed: {
+        doubleCount() {
+          return this.count * 2
+        }
+      },
+      methods: {
+        increment() {
+          this.count++
+        }
+      },
+      template: `
+        <div>
+          <p>计数：{{ count }}</p>
+          <p>双倍：{{ doubleCount }}</p>
+          <button @click="increment">+1</button>
+        </div>
+      `
+    })
+
+    // 1. 组合式API计数器
+    app.component('composition-counter', {
+      setup() {
+        // 响应式数据
+        const count = ref(0)
+        
+        // 计算属性
+        const doubleCount = computed(() => count.value * 2)
+        
+        // 方法
+        function increment() {
+          count.value++
+        }
+        
+        // 返回模板需要的数据和方法
+        return {
+          count,
+          doubleCount,
+          increment
+        }
+      },
+      template: `
+        <div>
+          <p>计数：{{ count }}</p>
+          <p>双倍：{{ doubleCount }}</p>
+          <button @click="increment">+1</button>
+        </div>
+      `
+    })
+
+    // 2. 响应式基础演示
+    app.component('reactive-demo', {
+      setup() {
+        // ref：用于基本类型
+        const message = ref('Hello Vue3!')
+        const count = ref(0)
+        
+        // reactive：用于对象类型
+        const user = reactive({
+          name: '张三',
+          age: 25,
+          hobbies: ['读书', '游戏']
+        })
+        
+        // 方法
+        function updateMessage() {
+          message.value = '消息已更新：' + new Date().toLocaleTimeString()
+        }
+        
+        function updateUser() {
+          user.name = '李四'
+          user.age = 30
+          user.hobbies.push('运动')
+        }
+        
+        function addCount() {
+          count.value++
+        }
+        
+        return {
+          message,
+          count,
+          user,
+          updateMessage,
+          updateUser,
+          addCount
+        }
+      },
+      template: `
+        <div>
+          <div style="margin: 10px 0;">
+            <h4>ref（基本类型）：</h4>
+            <p>消息：{{ message }}</p>
+            <p>计数：{{ count }}</p>
+            <button @click="updateMessage">更新消息</button>
+            <button @click="addCount">计数+1</button>
+          </div>
+          
+          <div style="margin: 10px 0;">
+            <h4>reactive（对象类型）：</h4>
+            <p>姓名：{{ user.name }}</p>
+            <p>年龄：{{ user.age }}</p>
+            <p>爱好：{{ user.hobbies.join(', ') }}</p>
+            <button @click="updateUser">更新用户</button>
+          </div>
+        </div>
+      `
+    })
+
+    // 3. 计算属性和侦听器演示
+    app.component('computed-watch-demo', {
+      setup() {
+        const firstName = ref('张')
+        const lastName = ref('三')
+        const searchQuery = ref('')
+        const searchResults = ref([])
+        
+        // 计算属性
+        const fullName = computed(() => {
+          return firstName.value + lastName.value
+        })
+        
+        // 侦听器
+        watch(searchQuery, async (newQuery) => {
+          if (newQuery.length < 2) {
+            searchResults.value = []
+            return
+          }
+          
+          // 模拟异步搜索
+          searchResults.value = ['搜索中...']
+          setTimeout(() => {
+            searchResults.value = [
+              `关于"${newQuery}"的结果1`,
+              `关于"${newQuery}"的结果2`,
+              `关于"${newQuery}"的结果3`
+            ]
+          }, 500)
+        })
+        
+        return {
+          firstName,
+          lastName,
+          fullName,
+          searchQuery,
+          searchResults
+        }
+      },
+      template: `
+        <div>
+          <div style="margin: 10px 0;">
+            <h4>计算属性：</h4>
+            <input v-model="firstName" placeholder="姓">
+            <input v-model="lastName" placeholder="名">
+            <p>全名：{{ fullName }}</p>
+          </div>
+          
+          <div style="margin: 10px 0;">
+            <h4>侦听器：</h4>
+            <input v-model="searchQuery" placeholder="输入搜索关键词">
+            <ul v-if="searchResults.length">
+              <li v-for="result in searchResults" :key="result">{{ result }}</li>
+            </ul>
+          </div>
+        </div>
+      `
+    })
+
+    // 4. 生命周期钩子演示
+    app.component('lifecycle-composition-demo', {
+      setup() {
+        const message = ref('组件已创建')
+        const timer = ref(null)
+        const seconds = ref(0)
+        
+        // 生命周期钩子
+        onMounted(() => {
+          console.log('组合式API - onMounted')
+          message.value = '组件已挂载'
+          
+          // 启动定时器
+          timer.value = setInterval(() => {
+            seconds.value++
+          }, 1000)
+        })
+        
+        onUpdated(() => {
+          console.log('组合式API - onUpdated')
+        })
+        
+        onUnmounted(() => {
+          console.log('组合式API - onUnmounted')
+          
+          // 清理定时器
+          if (timer.value) {
+            clearInterval(timer.value)
+          }
+        })
+        
+        return {
+          message,
+          seconds
+        }
+      },
+      template: `
+        <div style="padding: 15px; background-color: #f0f8ff; border-radius: 5px;">
+          <p>{{ message }}</p>
+          <p>运行时间：{{ seconds }} 秒</p>
+          <small>查看控制台输出生命周期信息</small>
+        </div>
+      `
+    })
+
+    // 5. 完整的待办事项应用（组合式API）
+    app.component('todo-app-composition', {
+      setup() {
+        // 响应式状态
+        const newTodo = ref('')
+        const todos = reactive([
+          { id: 1, text: '学习组合式API', completed: false },
+          { id: 2, text: '掌握ref和reactive', completed: false },
+          { id: 3, text: '理解setup函数', completed: true }
+        ])
+        const filter = ref('all')
+        
+        let nextId = 4
+        
+        // 计算属性
+        const filteredTodos = computed(() => {
+          switch (filter.value) {
+            case 'active':
+              return todos.filter(todo => !todo.completed)
+            case 'completed':
+              return todos.filter(todo => todo.completed)
+            default:
+              return todos
+          }
+        })
+        
+        const activeCount = computed(() => {
+          return todos.filter(todo => !todo.completed).length
+        })
+        
+        const completedCount = computed(() => {
+          return todos.filter(todo => todo.completed).length
+        })
+        
+        // 方法
+        function addTodo() {
+          if (newTodo.value.trim()) {
+            todos.push({
+              id: nextId++,
+              text: newTodo.value,
+              completed: false
+            })
+            newTodo.value = ''
+          }
+        }
+        
+        function removeTodo(id) {
+          const index = todos.findIndex(todo => todo.id === id)
+          if (index > -1) {
+            todos.splice(index, 1)
+          }
+        }
+        
+        function toggleTodo(todo) {
+          todo.completed = !todo.completed
+        }
+        
+        // 侦听器
+        watch(todos, (newTodos) => {
+          console.log('待办事项列表已更新，当前数量：', newTodos.length)
+        }, { deep: true })
+        
+        return {
+          newTodo,
+          todos,
+          filter,
+          filteredTodos,
+          activeCount,
+          completedCount,
+          addTodo,
+          removeTodo,
+          toggleTodo
+        }
+      },
+      template: `
+        <div>
+          <div style="margin-bottom: 15px;">
+            <input 
+              v-model="newTodo" 
+              @keyup.enter="addTodo"
+              placeholder="添加新的待办事项..."
+              style="padding: 5px; margin-right: 10px; width: 200px;"
+            >
+            <button @click="addTodo">添加</button>
+          </div>
+          
+          <div style="margin: 10px 0;">
+            <button @click="filter = 'all'" :style="{ fontWeight: filter === 'all' ? 'bold' : 'normal' }">
+              全部
+            </button>
+            <button @click="filter = 'active'" :style="{ fontWeight: filter === 'active' ? 'bold' : 'normal' }">
+              未完成 ({{ activeCount }})
+            </button>
+            <button @click="filter = 'completed'" :style="{ fontWeight: filter === 'completed' ? 'bold' : 'normal' }">
+              已完成 ({{ completedCount }})
+            </button>
+          </div>
+          
+          <div>
+            <div v-for="todo in filteredTodos" :key="todo.id" class="todo-item">
+              <input 
+                type="checkbox" 
+                :checked="todo.completed"
+                @change="toggleTodo(todo)"
+                style="margin-right: 10px;"
+              >
+              <span :class="{ completed: todo.completed }" style="flex: 1;">
+                {{ todo.text }}
+              </span>
+              <button 
+                @click="removeTodo(todo.id)"
+                style="background-color: #f56c6c; color: white; border: none; padding: 2px 6px; border-radius: 3px;"
+              >
+                删除
+              </button>
+            </div>
+          </div>
+        </div>
+      `
+    })
+
+    // 挂载应用
+    app.mount('#app')
+  </script>
+</body>
+</html>
