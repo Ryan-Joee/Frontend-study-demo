@@ -30,6 +30,7 @@
       function showTel() {
         alert(tel)
       }
+      // 将数据、方法交出去，模板中才可以使用
       return {name, age, changeName, changeAge, showTel}
     }
   }

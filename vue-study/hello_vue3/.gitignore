@@ -28,12 +28,3 @@ coverage
 *.sw?
 
 *.tsbuildinfo
-
-# Vite cache
-.vite/
-
-# Env files
-.env*
-
-# Windows系统缩略图
-Thumbs.db
